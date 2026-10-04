@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TSP Branch-and-Bound · Animated Search Tree</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; background: #0b1424; color: #e8edf7; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { max-width: 1500px; margin: auto; padding: 28px 24px 40px; }
+    h1 { font-size: clamp(1.7rem, 3vw, 2.5rem); margin: 0 0 8px; }
+    p { line-height: 1.55; }
+    .intro { color: #acb9ce; margin: 0 0 22px; }
+    .panel { background: #121e31; border: 1px solid #34465e; border-radius: 18px; padding: 20px; }
+    .top { display: flex; gap: 20px; align-items: start; justify-content: space-between; flex-wrap: wrap; }
+    .controls { display: flex; gap: 9px; flex-wrap: wrap; align-items: center; }
+    button, select { font: inherit; color: #e8edf7; background: #243a58; border: 1px solid #5e7da7; border-radius: 9px; padding: 9px 14px; cursor: pointer; }
+    button:hover, select:hover { background: #315079; }
+    button:focus-visible, select:focus-visible { outline: 3px solid #75b8ff; outline-offset: 2px; }
+    button:disabled { opacity: .45; cursor: default; }
+    label { color: #acb9ce; }
+    .metrics { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+    .metric { min-width: 130px; padding: 10px 14px; background: #192a42; border-radius: 9px; }
+    .metric strong { display: block; font-size: 1.35rem; margin-top: 2px; }
+    .metric span { color: #acb9ce; font-size: .85rem; }
+    #message { min-height: 3.2em; margin: 15px 0 0; color: #d9e4f3; }
+    .tree-wrap { margin-top: 20px; overflow-x: auto; border: 1px solid #34465e; border-radius: 15px; background: #0e192b; }
+    svg { display: block; width: 100%; min-width: 920px; height: auto; }
+    .edge { stroke: #627d9e; stroke-width: 3; opacity: .2; transition: opacity .35s, stroke .35s; }
+    .edge.seen { opacity: .85; }
+    .edge.pruned { stroke: #e58480; stroke-dasharray: 8 7; }
+    .edge.optimal { stroke: #56c89b; }
+    .node { opacity: .15; transition: opacity .35s; }
+    .node.seen { opacity: 1; }
+    .node rect { fill: #19263c; stroke: #6799e7; stroke-width: 3; }
+    .node.pruned rect { fill: #44252e; stroke: #e58480; }
+    .node.optimal rect { fill: #123a36; stroke: #56c89b; }
+    .node.current rect { stroke-width: 5; filter: drop-shadow(0 0 10px #83bcff); }
+    .node text { text-anchor: middle; fill: #e8edf7; }
+    .node .path { font-size: 22px; font-weight: 700; }
+    .node .cost { font-size: 17px; fill: #c8d3e4; }
+    .node .tag { font-size: 14px; font-weight: 700; }
+    .details { display: grid; grid-template-columns: minmax(200px, 350px) 1fr; gap: 24px; margin-top: 20px; }
+    .details h2 { font-size: 1.1rem; margin: 0 0 10px; }
+    table { border-collapse: collapse; width: 100%; text-align: center; }
+    th, td { border: 1px solid #34465e; padding: 6px 10px; }
+    th { color: #b9d6ff; }
+    .legend { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 12px; color: #acb9ce; }
+    .dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 6px; }
+    @media (max-width: 700px) { main { padding: 18px 12px; } .details { grid-template-columns: 1fr; } }
+    @media (prefers-reduced-motion: reduce) { .node, .edge { transition: none; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>TSP Branch-and-Bound Search Tree</h1>
+    <p class="intro">Four cities · start and end at A · watch lower bounds rule out expensive tours.</p>
+    <section class="panel" aria-label="Animation controls and search state">
+      <div class="top">
+        <div class="controls">
+          <button id="play" type="button">Play</button>
+          <button id="back" type="button">← Back</button>
+          <button id="next" type="button">Next →</button>
+          <button id="reset" type="button">Reset</button>
+          <label for="speed">Speed</label>
+          <select id="speed"><option value="1600">Slow</option><option value="950" selected>Normal</option><option value="450">Fast</option></select>
+        </div>
+        <strong id="step">Step 0 of 10</strong>
+      </div>
+      <div class="metrics">
+        <div class="metric"><span>Best complete tour</span><strong id="best">∞</strong></div>
+        <div class="metric"><span>Nodes shown</span><strong id="shown">0</strong></div>
+        <div class="metric"><span>Branches pruned</span><strong id="pruned">0</strong></div>
+        <div class="metric"><span>Optimal tours found</span><strong id="tours">0</strong></div>
+      </div>
+      <p id="message" role="status" aria-live="polite">Press Play or Next to begin at city A.</p>
+    </section>
+
+    <div class="tree-wrap">
+      <svg id="tree" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 760" role="img" aria-labelledby="tree-title tree-desc">
+        <title id="tree-title">Animated branch-and-bound search tree</title>
+        <desc id="tree-desc">The tree reveals partial tours, their lower bounds, two optimal tours of cost 80, and three pruned branches.</desc>
+      </svg>
+    </div>
+
+    <div class="details">
+      <section class="panel">
+        <h2>Distance matrix</h2>
+        <table aria-label="Symmetric travel costs between cities">
+          <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th></tr>
+          <tr><th>A</th><td>—</td><td>10</td><td>15</td><td>20</td></tr>
+          <tr><th>B</th><td>10</td><td>—</td><td>35</td><td>25</td></tr>
+          <tr><th>C</th><td>15</td><td>35</td><td>—</td><td>30</td></tr>
+          <tr><th>D</th><td>20</td><td>25</td><td>30</td><td>—</td></tr>
+        </table>
+      </section>
+      <section class="panel">
+        <h2>How to read the tree</h2>
+        <p>For a partial tour, <strong>LB = cost so far + MST of unvisited cities + cheapest edge from the current city to an unvisited city + cheapest edge from an unvisited city back to A</strong>. When one city remains, its MST cost is zero.</p>
+        <p>Once a complete tour costs 80, branches with LB &gt; 80 are pruned. Equal bounds are kept so the animation can find both optimal tours.</p>
+        <div class="legend"><span><i class="dot" style="background:#6799e7"></i>Exploring</span><span><i class="dot" style="background:#56c89b"></i>Optimal path</span><span><i class="dot" style="background:#e58480"></i>Pruned</span></div>
+      </section>
+    </div>
+  </main>
+  <script>
+    "use strict";
+    const cities = ["A", "B", "C", "D"];
+    const distance = {
+      A: { B: 10, C: 15, D: 20 },
+      B: { A: 10, C: 35, D: 25 },
+      C: { A: 15, B: 35, D: 30 },
+      D: { A: 20, B: 25, C: 30 }
+    };
+    // Fixed positions keep the same layout as Visualization.svg.
+    const positions = {
+      A: [750, 80], AB: [285, 230], AC: [750, 230], AD: [1215, 230],
+      ABD: [175, 405], ABC: [455, 405], ACD: [730, 405], ACB: [1010, 405],
+      ABDC: [175, 590], ACDB: [730, 590]
+    };
+    const events = [];
+    let incumbent = Infinity;
+    const bestTours = [];
+
+    function mstCost(unvisited) {
+      if (unvisited.length < 2) return 0;
+      const connected = [unvisited[0]];
+      const remaining = unvisited.slice(1);
+      let total = 0;
+      while (remaining.length) {
+        let best = { weight: Infinity, index: -1 };
+        for (const from of connected) {
+          remaining.forEach((to, index) => {
+            if (distance[from][to] < best.weight) best = { weight: distance[from][to], index };
+          });
+        }
+        total += best.weight;
+        connected.push(remaining.splice(best.index, 1)[0]);
+      }
+      return total;
+    }
+
+    function costSoFar(path) {
+      return path.slice(1).reduce((sum, city, index) => sum + distance[path[index]][city], 0);
+    }
+
+    function lowerBound(path) {
+      const remaining = cities.filter(city => !path.includes(city));
+      const cost = costSoFar(path);
+      if (!remaining.length) return cost + distance[path[path.length - 1]].A;
+      const last = path[path.length - 1];
+      const exit = Math.min(...remaining.map(city => distance[last][city]));
+      const home = Math.min(...remaining.map(city => distance[city].A));
+      return cost + exit + mstCost(remaining) + home;
+    }
+
+    function search(path) {
+      const key = path.join("");
+      const bound = lowerBound(path);
+      const cost = costSoFar(path);
+      if (bound > incumbent) {
+        events.push({ key, path, cost, bound, type: "pruned", best: incumbent,
+          message: `${path.join(" → ")} has LB ${bound}, greater than the best tour ${incumbent}. Prune this branch.` });
+        return;
+      }
+      if (path.length === cities.length) {
+        if (bound < incumbent) { incumbent = bound; bestTours.length = 0; }
+        bestTours.push(key);
+        events.push({ key, path, cost, bound, type: "tour", best: incumbent,
+          message: `${path.join(" → ")} → A costs ${bound}. ${bestTours.length === 1 ? "New best tour!" : "Another optimal tour!"}` });
+        return;
+      }
+      events.push({ key, path, cost, bound, type: "explore", best: incumbent,
+        message: `${path.join(" → ")} has cost ${cost} and LB ${bound}. Explore its cheapest promising continuation.` });
+      const children = cities.filter(city => !path.includes(city)).map(city => [...path, city]);
+      children.sort((a, b) => lowerBound(a) - lowerBound(b) || a.join("").localeCompare(b.join("")));
+      children.forEach(search);
+    }
+    search(["A"]);
+
+    const svg = document.getElementById("tree");
+    const svgNS = "http://www.w3.org/2000/svg";
+    const nodes = new Map();
+    const edges = new Map();
+    function element(tag, attrs, parent) {
+      const item = document.createElementNS(svgNS, tag);
+      Object.entries(attrs).forEach(([name, value]) => item.setAttribute(name, value));
+      parent.appendChild(item);
+      return item;
+    }
+    events.forEach(event => {
+      if (event.key === "A") return;
+      const parentKey = event.key.slice(0, -1);
+      const [px, py] = positions[parentKey];
+      const [x, y] = positions[event.key];
+      edges.set(event.key, element("line", { x1: px, y1: py + 44, x2: x, y2: y - 44, class: "edge" }, svg));
+    });
+    events.forEach(event => {
+      const [x, y] = positions[event.key];
+      const width = event.type === "tour" ? 300 : 260;
+      const group = element("g", { class: "node" }, svg);
+      element("rect", { x: x - width / 2, y: y - 44, width, height: 88, rx: 16 }, group);
+      const label = event.type === "tour" ? `${event.path.join(" → ")} → A` : event.path.join(" → ");
+      const title = element("text", { x, y: y - 12, class: "path" }, group);
+      title.textContent = label;
+      const detail = element("text", { x, y: y + 16, class: "cost" }, group);
+      detail.textContent = event.type === "tour" ? `tour cost ${event.bound}` : `cost ${event.cost} · LB ${event.bound}`;
+      const tag = element("text", { x, y: y + 35, class: "tag" }, group);
+      tag.textContent = event.type === "pruned" ? "PRUNED" : event.type === "tour" ? "OPTIMAL TOUR" : "";
+      nodes.set(event.key, group);
+    });
+
+    let cursor = 0;
+    let timer = null;
+    const $ = id => document.getElementById(id);
+    function pause() {
+      if (timer !== null) { clearInterval(timer); timer = null; }
+      $("play").textContent = "Play";
+    }
+    function render() {
+      const visible = events.slice(0, cursor);
+      const current = visible.at(-1);
+      const seen = new Map(visible.map(event => [event.key, event]));
+      const optimal = new Set();
+      visible.filter(event => event.type === "tour").forEach(event => {
+        for (let i = 2; i <= event.key.length; i++) optimal.add(event.key.slice(0, i));
+      });
+      events.forEach(event => {
+        const state = seen.get(event.key);
+        const classes = ["node"];
+        if (state) classes.push("seen");
+        if (state?.type === "pruned") classes.push("pruned");
+        if (optimal.has(event.key)) classes.push("optimal");
+        if (current?.key === event.key) classes.push("current");
+        nodes.get(event.key).setAttribute("class", classes.join(" "));
+        if (event.key !== "A") {
+          const edgeClasses = ["edge"];
+          if (state) edgeClasses.push("seen");
+          if (state?.type === "pruned") edgeClasses.push("pruned");
+          if (optimal.has(event.key)) edgeClasses.push("optimal");
+          edges.get(event.key).setAttribute("class", edgeClasses.join(" "));
+        }
+      });
+      $("step").textContent = `Step ${cursor} of ${events.length}`;
+      $("best").textContent = Number.isFinite(current?.best) ? current.best : "∞";
+      $("shown").textContent = cursor;
+      $("pruned").textContent = visible.filter(event => event.type === "pruned").length;
+      $("tours").textContent = visible.filter(event => event.type === "tour").length;
+      $("message").textContent = current?.message ?? "Press Play or Next to begin at city A.";
+      $("back").disabled = cursor === 0;
+      $("next").disabled = cursor === events.length;
+      if (cursor === events.length) pause();
+    }
+    function next() { if (cursor < events.length) { cursor++; render(); } }
+    $("play").addEventListener("click", () => {
+      if (timer !== null) { pause(); return; }
+      if (cursor === events.length) cursor = 0;
+      next();
+      if (cursor < events.length) {
+        timer = setInterval(next, Number($("speed").value));
+        $("play").textContent = "Pause";
+      }
+    });
+    $("next").addEventListener("click", () => { pause(); next(); });
+    $("back").addEventListener("click", () => { pause(); cursor = Math.max(0, cursor - 1); render(); });
+    $("reset").addEventListener("click", () => { pause(); cursor = 0; render(); });
+    $("speed").addEventListener("change", () => {
+      if (timer !== null) { clearInterval(timer); timer = setInterval(next, Number($("speed").value)); }
+    });
+    render();
+  </script>
+</body>
+</html>
