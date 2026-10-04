@@ -4,9 +4,9 @@
 
 The **Traveling Salesperson Problem (TSP)** asks for the cheapest tour that visits every city once and returns to the start. This example starts at **A** and uses branch and bound: each branch chooses the next city, while a **lower bound (LB)** estimates the cheapest possible completed tour from that partial route. A branch is pruned once its LB is greater than the best complete tour found so far.
 
-[Open the animated walkthrough](Animation.html) to play, pause, or step through the decisions. [View the full search tree](Visualization.svg) for a static diagram suitable for a report.
+[Open the animated walkthrough](Animation.html) to play, pause, or step through the decisions. [View the PNG image](Visualization.png) or [the SVG version](Visualization.svg) for a static diagram suitable for a report.
 
-![TSP branch-and-bound search tree](Visualization.svg)
+![TSP branch-and-bound search tree](Visualization.png)
 
 ## Distances
 
@@ -76,7 +76,7 @@ Branch and bound can still explore factorially many partial routes in the worst 
 
 ## Run and reuse
 
-Open `Animation.html` in a browser. It is self-contained and needs no server, packages, or internet connection. Use **Play**, **Pause**, **Back**, **Next**, **Reset**, and **Speed** to control the walkthrough. `Visualization.svg` can be opened in a browser or inserted directly into slides and documents.
+Open `Animation.html` in a browser. It is self-contained and needs no server, packages, or internet connection. Use **Play**, **Pause**, **Back**, **Next**, **Reset**, and **Speed** to control the walkthrough. Use `Visualization.png` as a ready-to-share image, or `Visualization.svg` when a scalable diagram is needed.
 
 ## Prompt
 
