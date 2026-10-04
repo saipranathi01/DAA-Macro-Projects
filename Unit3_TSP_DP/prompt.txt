@@ -1,0 +1,103 @@
+Create a professional academic visualization for a Design and Analysis of Algorithms project on:
+
+"Traveling Salesperson Problem using Dynamic Programming"
+
+The visualization must show the DP state transitions for exactly 4 cities:
+A, B, C, and D.
+
+Use this distance matrix:
+
+        A   B   C   D
+A       0  10  15  20
+B      10   0  35  25
+C      15  35   0  30
+D      20  25  30   0
+
+The Dynamic Programming state is:
+
+DP[S][j]
+
+where S represents the subset of visited cities and j represents
+the city where the current path ends.
+
+Use the following calculated DP values from the implementation:
+
+DP[{A}][A] = 0
+
+DP[{A,B}][B] = 10
+DP[{A,C}][C] = 15
+DP[{A,D}][D] = 20
+
+DP[{A,B,C}][B] = 50
+DP[{A,B,C}][C] = 45
+
+DP[{A,B,D}][B] = 45
+DP[{A,B,D}][D] = 35
+
+DP[{A,C,D}][C] = 50
+DP[{A,C,D}][D] = 45
+
+DP[{A,B,C,D}][B] = 70
+DP[{A,B,C,D}][C] = 65
+DP[{A,B,C,D}][D] = 75
+
+Show the progression of DP states from smaller subsets to larger subsets:
+
+{A}
+   ↓
+{A,B}, {A,C}, {A,D}
+   ↓
+{A,B,C}, {A,B,D}, {A,C,D}
+   ↓
+{A,B,C,D}
+   ↓
+Return to A
+
+Draw arrows between states to clearly show how each DP state is calculated
+from the previous smaller subset.
+
+For example, show transitions such as:
+
+DP[{A,B}][B] → DP[{A,B,C}][C]
+DP[{A,C}][C] → DP[{A,B,C}][B]
+DP[{A,B,D}][D] → DP[{A,B,C,D}][C]
+
+Clearly show that the recurrence is:
+
+DP[S][j] = min(DP[S-{j}][i] + distance[i][j])
+
+At the final stage, show the return-to-A calculations:
+
+Ending at B: 70 + 10 = 80
+Ending at C: 65 + 15 = 80
+Ending at D: 75 + 20 = 95
+
+Therefore:
+
+Minimum TSP Cost = 80
+
+Show one optimal route:
+
+A → C → D → B → A
+
+with its calculation:
+
+15 + 30 + 25 + 10 = 80
+
+Also indicate that A → B → D → C → A is another optimal route
+with the same cost of 80, if space permits.
+
+Design requirements:
+- Professional academic DAA-project style
+- Clean white/light background
+- Clearly readable labels
+- Use boxes/nodes for DP states
+- Use arrows for transitions
+- Distinguish DP states from the final optimal route
+- Include a small legend explaining DP[S][j]
+- Include the distance matrix
+- Include the final minimum cost prominently
+- No decorative or unrelated graphics
+- Make the entire diagram fit clearly on one page
+- Ensure all city names, DP values, arrows, and mathematical notation are accurate
+- The final output should look suitable for submission as a college project visualization.
