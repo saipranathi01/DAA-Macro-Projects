@@ -26,7 +26,7 @@
     <path class="edge edge-optimal" d="M750 223 L750 284"/>
     <path class="edge edge-pruned" d="M750 223 L1215 284"/>
     <path class="edge edge-optimal" d="M285 374 L175 454"/>
-    <path class="edge edge-pruned" d="M285 374 L395 454"/>
+    <path class="edge edge-pruned" d="M285 374 L455 454"/>
     <path class="edge edge-optimal" d="M750 374 L730 454"/>
     <path class="edge edge-pruned" d="M750 374 L1010 454"/>
     <path class="edge edge-optimal" d="M175 544 L175 628"/>
