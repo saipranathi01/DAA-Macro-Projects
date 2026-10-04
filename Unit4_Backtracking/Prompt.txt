@@ -1,0 +1,35 @@
+Create a professional academic visualization for the **Sum of Subsets Problem using Backtracking**.
+
+Visualize the **state-space tree** for finding subsets of the set **{5, 10, 12}** whose sum equals the target **15**.
+
+Requirements:
+
+* Show the root node as **sum = 0**.
+* At each level, show two choices for the next element:
+
+  * **Include** the element.
+  * **Exclude** the element.
+* Clearly label every branch with the corresponding decision and current sum.
+* Show the valid solution **{5, 10}**, whose sum is **15**, using a distinct green color.
+* Show branches that exceed the target or cannot produce the target as **pruned / no-solution branches**, using red or pink.
+* Show intermediate states using a neutral blue color.
+* Use arrows to clearly indicate the direction of the recursive exploration.
+* Make the state-space tree the main focus of the visualization.
+* Include a small legend explaining:
+
+  * Green = valid solution
+  * Red/Pink = pruned or no solution
+  * Blue = intermediate state
+* Include a short “How it works” section explaining:
+
+  1. Start with an empty set (sum = 0).
+  2. At each level, choose to include or exclude the next element.
+  3. Prune a branch when the current sum exceeds 15.
+  4. Record a subset when the target sum 15 is reached.
+* Include a clear result section showing:
+  **Subset with sum 15: {5, 10}**
+* Use a clean, professional academic style suitable for a **DAA Macro Project**.
+* Use a white background, clear sans-serif typography, readable node labels, and well-spaced tree branches.
+* Avoid unnecessary decorative elements.
+* Title: **“Sum of Subsets – State Space Tree”**
+* Subtitle: **“Find all subsets of {5, 10, 12} whose sum is 15”**
