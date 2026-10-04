@@ -1,0 +1,26 @@
+Create a professional academic flowchart for the Greedy Job Sequencing with Deadlines algorithm.
+
+The flowchart should show the following steps:
+
+1. Start
+2. Input jobs with Job ID, Deadline, and Profit
+3. Sort jobs in descending order of profit
+4. Find the maximum deadline
+5. Create empty time slots
+6. Select the next highest-profit job
+7. Check for an available slot from the job's deadline backward to slot 1
+8. If a slot is available, schedule the job and add its profit to the total profit
+9. If no slot is available, skip the job
+10. Check whether more jobs remain
+11. Display the final job schedule
+12. Display the maximum total profit
+13. End
+
+Use standard flowchart symbols:
+
+* Oval for Start/End
+* Rectangle for processing steps
+* Diamond for decisions
+* Arrows for control flow
+
+Use a clean, professional academic style suitable for a college DAA project. Clearly label YES and NO branches.
