@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 880" role="img" aria-labelledby="title desc">
+  <title id="title">TSP branch-and-bound search tree for four cities</title>
+  <desc id="desc">The root has lower bound 75. Branches A-B and A-C each lead to an optimal tour of cost 80. A-D has bound 90 and is pruned. A-B-C and A-C-B each have bound 95 and are pruned.</desc>
+  <defs>
+    <style>
+      text { font-family: Inter, Arial, sans-serif; fill: #e8edf7 }
+      .heading { font-size: 32px; font-weight: 700 }
+      .sub { font-size: 17px; fill: #acb9ce }
+      .edge { fill: none; stroke: #7788a4; stroke-width: 3 }
+      .edge-pruned { stroke: #e58480; stroke-dasharray: 8 7 }
+      .edge-optimal { stroke: #56c89b }
+      .node { fill: #19263c; stroke: #6799e7; stroke-width: 3 }
+      .optimal { fill: #123a36; stroke: #56c89b }
+      .pruned { fill: #44252e; stroke: #e58480 }
+      .node-title { font-size: 22px; font-weight: 700; text-anchor: middle }
+      .node-detail { font-size: 17px; text-anchor: middle; fill: #c8d3e4 }
+      .small { font-size: 15px; fill: #acb9ce }
+    </style>
+  </defs>
+  <rect width="1500" height="880" fill="#0b1424"/>
+  <text x="70" y="62" class="heading">TSP Branch-and-Bound Search Tree</text>
+  <text x="70" y="94" class="sub">Start at A · lower bound (LB) guides the search · prune when LB &gt; best complete tour</text>
+
+  <g aria-label="Search tree edges">
+    <path class="edge edge-optimal" d="M750 223 L285 284"/>
+    <path class="edge edge-optimal" d="M750 223 L750 284"/>
+    <path class="edge edge-pruned" d="M750 223 L1215 284"/>
+    <path class="edge edge-optimal" d="M285 374 L175 454"/>
+    <path class="edge edge-pruned" d="M285 374 L395 454"/>
+    <path class="edge edge-optimal" d="M750 374 L730 454"/>
+    <path class="edge edge-pruned" d="M750 374 L1010 454"/>
+    <path class="edge edge-optimal" d="M175 544 L175 628"/>
+    <path class="edge edge-optimal" d="M730 544 L730 628"/>
+  </g>
+
+  <g aria-label="Root state">
+    <rect x="620" y="143" width="260" height="80" rx="16" class="node"/>
+    <text x="750" y="176" class="node-title">A</text>
+    <text x="750" y="203" class="node-detail">cost 0 · LB 75</text>
+  </g>
+
+  <g aria-label="First choices">
+    <rect x="155" y="284" width="260" height="90" rx="16" class="node"/>
+    <text x="285" y="320" class="node-title">A → B</text>
+    <text x="285" y="350" class="node-detail">cost 10 · LB 80</text>
+    <rect x="620" y="284" width="260" height="90" rx="16" class="node"/>
+    <text x="750" y="320" class="node-title">A → C</text>
+    <text x="750" y="350" class="node-detail">cost 15 · LB 80</text>
+    <rect x="1085" y="284" width="260" height="90" rx="16" class="pruned"/>
+    <text x="1215" y="316" class="node-title">A → D</text>
+    <text x="1215" y="344" class="node-detail">cost 20 · LB 90</text>
+    <text x="1215" y="366" class="small" text-anchor="middle">PRUNED: 90 &gt; 80</text>
+  </g>
+
+  <g aria-label="Second choices">
+    <rect x="45" y="454" width="260" height="90" rx="16" class="optimal"/>
+    <text x="175" y="490" class="node-title">A → B → D</text>
+    <text x="175" y="520" class="node-detail">cost 35 · LB 80</text>
+    <rect x="325" y="454" width="260" height="90" rx="16" class="pruned"/>
+    <text x="455" y="486" class="node-title">A → B → C</text>
+    <text x="455" y="514" class="node-detail">cost 45 · LB 95</text>
+    <text x="455" y="536" class="small" text-anchor="middle">PRUNED: 95 &gt; 80</text>
+    <rect x="600" y="454" width="260" height="90" rx="16" class="optimal"/>
+    <text x="730" y="490" class="node-title">A → C → D</text>
+    <text x="730" y="520" class="node-detail">cost 45 · LB 80</text>
+    <rect x="880" y="454" width="260" height="90" rx="16" class="pruned"/>
+    <text x="1010" y="486" class="node-title">A → C → B</text>
+    <text x="1010" y="514" class="node-detail">cost 50 · LB 95</text>
+    <text x="1010" y="536" class="small" text-anchor="middle">PRUNED: 95 &gt; 80</text>
+  </g>
+
+  <g aria-label="Optimal tours">
+    <rect x="25" y="628" width="300" height="92" rx="16" class="optimal"/>
+    <text x="175" y="666" class="node-title">A → B → D → C → A</text>
+    <text x="175" y="697" class="node-detail">tour cost 80 · OPTIMAL</text>
+    <rect x="580" y="628" width="300" height="92" rx="16" class="optimal"/>
+    <text x="730" y="666" class="node-title">A → C → D → B → A</text>
+    <text x="730" y="697" class="node-detail">tour cost 80 · OPTIMAL</text>
+  </g>
+
+  <path d="M70 772 H1430" stroke="#34465e"/>
+  <text x="70" y="807" class="sub">Bound: cost so far + MST(unvisited) + cheapest exit from current city + cheapest return to A</text>
+  <text x="70" y="838" class="sub">Distances: AB 10 · AC 15 · AD 20 · BC 35 · BD 25 · CD 30. Green = optimal path; red = pruned after best cost 80.</text>
+</svg>
